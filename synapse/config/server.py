@@ -416,7 +416,7 @@ class ServerConfig(Config):
         except ValueError as e:
             raise ConfigError(str(e))
 
-        self.pid_file = self.abspath(config.get("pid_file"))
+        self.pid_file = self.runpath(config.get("pid_file"))
         self.soft_file_limit = config.get("soft_file_limit", 0)
         self.daemonize = bool(config.get("daemonize"))
         self.print_pidfile = bool(config.get("print_pidfile"))
@@ -931,7 +931,7 @@ class ServerConfig(Config):
         listeners: list[dict] | None = None,
         **kwargs: Any,
     ) -> str:
-        pid_file = os.path.join(data_dir_path, "homeserver.pid")
+        pid_file = self.runpath("homeserver.pid")
 
         http_bindings = "[]"
         private_addresses = ["::1", "127.0.0.1"]
