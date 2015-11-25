@@ -159,7 +159,7 @@ class DatabaseConfig(Config):
 
     def generate_config_section(self, data_dir_path, **kwargs):
         return DEFAULT_CONFIG % {
-            "database_path": os.path.join(data_dir_path, "homeserver.db")
+            "database_path": self.varpath("homeserver.db")
         }
 
     def read_arguments(self, args):
@@ -191,7 +191,7 @@ class DatabaseConfig(Config):
     def set_databasepath(self, database_path):
 
         if database_path != ":memory:":
-            database_path = self.abspath(database_path)
+            database_path = self.varpath(database_path)
 
         self.databases[0].config["args"]["database"] = database_path
 
