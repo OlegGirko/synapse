@@ -21,6 +21,7 @@ from contextlib import redirect_stdout
 from io import StringIO
 
 from synapse.config.homeserver import HomeServerConfig
+from synapse.config._base import Config
 
 from tests import unittest
 
@@ -54,7 +55,7 @@ class ConfigGenerationTestCase(unittest.TestCase):
 
         self.assert_log_filename_is(
             os.path.join(self.dir, "lemurs.win.log.config"),
-            os.path.join(os.getcwd(), "homeserver.log"),
+            Config.logpath("homeserver.log"),
         )
 
     def assert_log_filename_is(self, log_config_file, expected):

@@ -45,7 +45,7 @@ class DatabaseConfig(Config):
 
     def generate_config_section(self, data_dir_path, database_conf, **kwargs):
         if not database_conf:
-            database_path = os.path.join(data_dir_path, "homeserver.db")
+            database_path = self.varpath("homeserver.db")
             database_conf = (
                 """# The database engine name
           name: "sqlite3"
@@ -77,7 +77,7 @@ class DatabaseConfig(Config):
 
     def set_databasepath(self, database_path):
         if database_path != ":memory:":
-            database_path = self.abspath(database_path)
+            database_path = self.varpath(database_path)
         if self.database_config.get("name", None) == "sqlite3":
             if database_path is not None:
                 self.database_config["args"]["database"] = database_path
