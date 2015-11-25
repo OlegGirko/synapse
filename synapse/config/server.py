@@ -32,7 +32,7 @@ class ServerConfig(Config):
         except ValueError as e:
             raise ConfigError(str(e))
 
-        self.pid_file = self.abspath(config.get("pid_file"))
+        self.pid_file = self.runpath(config.get("pid_file"))
         self.web_client = config["web_client"]
         self.web_client_location = config.get("web_client_location", None)
         self.soft_file_limit = config["soft_file_limit"]
@@ -176,7 +176,7 @@ class ServerConfig(Config):
             bind_port = 8448
             unsecure_port = 8008
 
-        pid_file = self.abspath("homeserver.pid")
+        pid_file = self.runpath("homeserver.pid")
         return """\
         ## Server ##
 
