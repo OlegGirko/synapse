@@ -59,6 +59,27 @@ class Config(object):
     def abspath(file_path):
         return os.path.abspath(file_path) if file_path else file_path
 
+    @staticmethod
+    def runpath(file_path):
+        if file_path:
+            return os.path.join("/var/run/synapse", file_path)
+        else:
+            return file_path
+
+    @staticmethod
+    def varpath(file_path):
+        if file_path:
+            return os.path.join("/var/lib/synapse", file_path)
+        else:
+            return file_path
+
+    @staticmethod
+    def logpath(file_path):
+        if file_path:
+            return os.path.join("/var/log/synapse", file_path)
+        else:
+            return file_path
+
     @classmethod
     def check_file(cls, file_path, config_name):
         if file_path is None:

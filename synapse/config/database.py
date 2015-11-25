@@ -46,7 +46,7 @@ class DatabaseConfig(Config):
         self.set_databasepath(config.get("database_path"))
 
     def default_config(self, config, config_dir_path):
-        database_path = self.abspath("homeserver.db")
+        database_path = self.varpath("homeserver.db")
         return """\
         # Database configuration
         database:
@@ -66,7 +66,7 @@ class DatabaseConfig(Config):
 
     def set_databasepath(self, database_path):
         if database_path != ":memory:":
-            database_path = self.abspath(database_path)
+            database_path = self.varpath(database_path)
         if self.database_config.get("name", None) == "sqlite3":
             if database_path is not None:
                 self.database_config["args"]["database"] = database_path
