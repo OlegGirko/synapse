@@ -16,8 +16,7 @@
 
 import glob
 import os
-from setuptools import setup, find_packages, Command
-import sys
+from setuptools import setup, find_packages
 
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -38,39 +37,6 @@ def exec_file(path_segments):
     exec(code, result)
     return result
 
-
-class Tox(Command):
-    user_options = [('tox-args=', 'a', "Arguments to pass to tox")]
-
-    def initialize_options(self):
-        self.tox_args = None
-
-    def finalize_options(self):
-        self.test_args = []
-        self.test_suite = True
-
-    def run(self):
-        #import here, cause outside the eggs aren't loaded
-        try:
-            import tox
-        except ImportError:
-            try:
-                self.distribution.fetch_build_eggs("tox")
-                import tox
-            except:
-                raise RuntimeError(
-                    "The tests need 'tox' to run. Please install 'tox'."
-                )
-        import shlex
-        args = self.tox_args
-        if args:
-            args = shlex.split(self.tox_args)
-        else:
-            args = []
-        errno = tox.cmdline(args=args)
-        sys.exit(errno)
-
-
 version = exec_file(("synapse", "__init__.py"))["__version__"]
 dependencies = exec_file(("synapse", "python_dependencies.py"))
 long_description = read_file(("README.rst",))
@@ -86,5 +52,4 @@ setup(
     zip_safe=False,
     long_description=long_description,
     scripts=["synctl"] + glob.glob("scripts/*"),
-    cmdclass={'test': Tox},
 )
