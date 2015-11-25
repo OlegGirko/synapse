@@ -225,7 +225,7 @@ class ContentRepositoryConfig(Config):
 
     def generate_config_section(self, data_dir_path: str, **kwargs: Any) -> str:
         assert data_dir_path is not None
-        media_store = os.path.join(data_dir_path, "media_store")
+        media_store = self.varpath("media_store")
 
         formatted_thumbnail_sizes = "".join(
             THUMBNAIL_SIZE_YAML % s for s in DEFAULT_THUMBNAIL_SIZES
