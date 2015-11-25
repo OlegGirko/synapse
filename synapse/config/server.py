@@ -257,7 +257,7 @@ class ServerConfig(Config):
         except ValueError as e:
             raise ConfigError(str(e))
 
-        self.pid_file = self.abspath(config.get("pid_file"))
+        self.pid_file = self.runpath(config.get("pid_file"))
         self.soft_file_limit = config.get("soft_file_limit", 0)
         self.daemonize = config.get("daemonize")
         self.print_pidfile = config.get("print_pidfile")
@@ -699,7 +699,7 @@ class ServerConfig(Config):
             bind_port = 8448
             unsecure_port = 8008
 
-        pid_file = os.path.join(data_dir_path, "homeserver.pid")
+        pid_file = self.runpath("homeserver.pid")
 
         # Bring DEFAULT_ROOM_VERSION into the local-scope for use in the
         # default config string
