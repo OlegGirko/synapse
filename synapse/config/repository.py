@@ -307,5 +307,5 @@ class ContentRepositoryConfig(Config):
 
     def generate_config_section(self, data_dir_path: str, **kwargs: Any) -> str:
         assert data_dir_path is not None
-        media_store = os.path.join(data_dir_path, "media_store")
+        media_store = self.varpath("media_store")
         return f"media_store_path: {media_store}"
