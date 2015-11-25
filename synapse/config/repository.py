@@ -197,8 +197,8 @@ class ContentRepositoryConfig(Config):
             ) or ["en"]
 
     def generate_config_section(self, data_dir_path, **kwargs):
-        media_store = os.path.join(data_dir_path, "media_store")
-        uploads_path = os.path.join(data_dir_path, "uploads")
+        media_store = self.varpath("media_store")
+        uploads_path = self.varpath("uploads")
 
         formatted_thumbnail_sizes = "".join(
             THUMBNAIL_SIZE_YAML % s for s in DEFAULT_THUMBNAIL_SIZES
