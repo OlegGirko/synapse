@@ -22,12 +22,12 @@ from tests import unittest
 class DatabaseConfigTestCase(unittest.TestCase):
     def test_database_configured_correctly(self):
         conf = yaml.safe_load(
-            DatabaseConfig().generate_config_section(data_dir_path="/data_dir_path")
+            DatabaseConfig().generate_config_section(data_dir_path="/var/lib/synapse")
         )
 
         expected_database_conf = {
             "name": "sqlite3",
-            "args": {"database": "/data_dir_path/homeserver.db"},
+            "args": {"database": "/var/lib/synapse/homeserver.db"},
         }
 
         self.assertEqual(conf["database"], expected_database_conf)
