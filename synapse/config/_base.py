@@ -165,6 +165,27 @@ class Config:
     def abspath(file_path):
         return os.path.abspath(file_path) if file_path else file_path
 
+    @staticmethod
+    def runpath(file_path):
+        if file_path:
+            return os.path.join("/var/run/synapse", file_path)
+        else:
+            return file_path
+
+    @staticmethod
+    def varpath(file_path):
+        if file_path:
+            return os.path.join("/var/lib/synapse", file_path)
+        else:
+            return file_path
+
+    @staticmethod
+    def logpath(file_path):
+        if file_path:
+            return os.path.join("/var/log/synapse", file_path)
+        else:
+            return file_path
+
     @classmethod
     def path_exists(cls, file_path):
         return path_exists(file_path)
