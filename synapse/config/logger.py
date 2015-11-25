@@ -188,7 +188,7 @@ class LoggingConfig(Config):
     def generate_files(self, config: Dict[str, Any], config_dir_path: str) -> None:
         log_config = config.get("log_config")
         if log_config and not os.path.exists(log_config):
-            log_file = self.abspath("homeserver.log")
+            log_file = self.logpath("homeserver.log")
             print(
                 "Generating log config file %s which will log to %s"
                 % (log_config, log_file)
