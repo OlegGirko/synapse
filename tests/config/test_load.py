@@ -117,6 +117,19 @@ class ConfigLoadingTestCase(unittest.TestCase):
                 ],
             )
 
+        with open(self.file, "r") as f:
+            contents = f.readlines()
+        newcontents = []
+        for l in contents:
+            if l.startswith("media_store_path: "):
+                newcontents.append('media_store_path: "%s"\n' % os.path.abspath("media_store"))
+            elif l.startswith("uploads_path: "):
+                newcontents.append('uploads_path: "%s"\n' % os.path.abspath("uploads"))
+            else:
+                newcontents.append(l)
+        with open(self.file, "w") as f:
+            f.write("".join(newcontents))
+
     def generate_config_and_remove_lines_containing(self, needle):
         self.generate_config()
 
