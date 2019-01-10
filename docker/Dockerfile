@@ -25,7 +25,7 @@ RUN apk add \
 
 RUN pip install --prefix="/install" --no-warn-script-location \
         cryptography \
-        msgpack-python \
+        msgpack \
         pillow \
         pynacl
 
