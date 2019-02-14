@@ -14,7 +14,18 @@
 # limitations under the License.
 from mock import Mock, patch
 
-from parameterized import parameterized
+try:
+    from parameterized import parameterized
+except ImportError:
+    from unittest import skip
+    expand = skip('parameterized package unavailable')
+else:
+    expand = parameterized.expand([
+        (["federation"], "auth_fail"),
+        ([], "no_resource"),
+        (["openid", "federation"], "auth_fail"),
+        (["openid"], "auth_fail"),
+    ])
 
 from synapse.app.federation_reader import FederationReaderServer
 from synapse.app.homeserver import SynapseHomeServer
@@ -29,14 +40,7 @@ class FederationReaderOpenIDListenerTests(HomeserverTestCase):
         )
         return hs
 
-    @parameterized.expand(
-        [
-            (["federation"], "auth_fail"),
-            ([], "no_resource"),
-            (["openid", "federation"], "auth_fail"),
-            (["openid"], "auth_fail"),
-        ]
-    )
+    @expand
     def test_openid_listener(self, names, expectation):
         """
         Test different openid listener configurations.
@@ -77,14 +81,7 @@ class SynapseHomeserverOpenIDListenerTests(HomeserverTestCase):
         )
         return hs
 
-    @parameterized.expand(
-        [
-            (["federation"], "auth_fail"),
-            ([], "no_resource"),
-            (["openid", "federation"], "auth_fail"),
-            (["openid"], "auth_fail"),
-        ]
-    )
+    @expand
     def test_openid_listener(self, names, expectation):
         """
         Test different openid listener configurations.
