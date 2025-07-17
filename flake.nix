@@ -96,6 +96,7 @@
                   gnumake
 
                   # Native dependencies for running Synapse.
+                  icu
                   libffi
                   libjpeg
                   libpqxx
