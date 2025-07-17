@@ -15,7 +15,6 @@ pub mod matrix_const;
 pub mod msc4388_rendezvous;
 pub mod push;
 pub mod rendezvous;
-pub mod segmenter;
 
 lazy_static! {
     static ref LOGGING_HANDLE: ResetHandle = pyo3_log::init();
@@ -57,7 +56,6 @@ fn synapse_rust(py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     http_client::register_module(py, m)?;
     rendezvous::register_module(py, m)?;
     msc4388_rendezvous::register_module(py, m)?;
-    segmenter::register_module(py, m)?;
 
     Ok(())
 }
