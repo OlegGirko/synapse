@@ -156,6 +156,10 @@ cache-memory = ["pympler>=1.0"]
 # If this is updated, don't forget to update the equivalent lines in
 # `dependency-groups.dev` below.
 test = ["parameterized>=0.9.0", "idna>=3.3"]
+# Allows for better search for international characters in the user directory. This
+# requires libicu's development headers installed on the system (e.g. libicu-dev on
+# Debian-based distributions).
+user-search = ["pyicu"]
 
 # The duplication here is awful.
 #
@@ -187,6 +191,8 @@ all = [
     # cache-memory
     # 1.0 added support for python 3.10, our current minimum supported python version
     "pympler>=1.0",
+    # user-search
+    "pyicu>=2.10.2",
     # omitted:
     #   - test: it's useful to have this separate from dev deps in the olddeps job
     #   - systemd: this is a system-based requirement
