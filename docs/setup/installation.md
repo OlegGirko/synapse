@@ -286,7 +286,7 @@ Installing prerequisites on Ubuntu or Debian:
 ```sh
 sudo apt install build-essential python3-dev libffi-dev \
                      python3-pip python3-setuptools sqlite3 \
-                     libssl-dev virtualenv libjpeg-dev libxslt1-dev
+                     libssl-dev virtualenv libjpeg-dev libxslt1-dev libicu-dev
 ```
 
 ##### ArchLinux
@@ -295,7 +295,7 @@ Installing prerequisites on ArchLinux:
 
 ```sh
 sudo pacman -S base-devel python python-pip \
-               python-setuptools python-virtualenv sqlite3
+               python-setuptools python-virtualenv sqlite3 icu
 ```
 
 ##### CentOS/Fedora
@@ -305,7 +305,8 @@ Installing prerequisites on CentOS or Fedora Linux:
 ```sh
 sudo dnf install libtiff-devel libjpeg-devel libzip-devel freetype-devel \
                  libwebp-devel libxml2-devel libxslt-devel libpq-devel \
-                 python3-virtualenv libffi-devel openssl-devel python3-devel
+                 python3-virtualenv libffi-devel openssl-devel python3-devel \
+                 libicu-devel
 sudo dnf group install "Development Tools"
 ```
 
@@ -332,7 +333,7 @@ dnf install python3.12 python3.12-devel
 ```
 Finally, install common prerequisites
 ```bash
-dnf install libpq5 libpq5-devel lz4 pkgconf
+dnf install libicu libicu-devel libpq5 libpq5-devel lz4 pkgconf
 dnf group install "Development Tools"
 ```
 ###### Using venv module instead of virtualenv command
@@ -364,6 +365,20 @@ xcode-select --install
 
 Some extra dependencies may be needed. You can use Homebrew (https://brew.sh) for them.
 
+You may need to install icu, and make the icu binaries and libraries accessible.
+Please follow [the official instructions of PyICU](https://pypi.org/project/PyICU/) to do so.
+
+If you're struggling to get icu discovered, and see:
+```
+  RuntimeError:
+  Please install pkg-config on your system or set the ICU_VERSION environment
+  variable to the version of ICU you have installed.
+```
+despite it being installed and having your `PATH` updated, you can omit this dependency by
+not specifying `--extras all` to `poetry`. If using postgres, you can install Synapse via
+`poetry install --extras saml2 --extras oidc --extras postgres --extras opentracing --extras redis --extras sentry`.
+ICU is not a hard dependency on getting a working installation.
+
 On ARM-based Macs you may also need to install libjpeg and libpq:
 ```sh
  brew install jpeg libpq
@@ -385,7 +400,8 @@ Installing prerequisites on openSUSE:
 ```sh
 sudo zypper in -t pattern devel_basis
 sudo zypper in python-pip python-setuptools sqlite3 python-virtualenv \
-               python-devel libffi-devel libopenssl-devel libjpeg62-devel
+               python-devel libffi-devel libopenssl-devel libjpeg62-devel \
+               libicu-devel
 ```
 
 ##### OpenBSD
