@@ -117,6 +117,10 @@ cache-memory = ["pympler"]
 # If this is updated, don't forget to update the equivalent lines in
 # tool.poetry.group.dev.dependencies.
 test = ["parameterized>=0.9.0", "idna>=3.3"]
+# Allows for better search for international characters in the user directory. This
+# requires libicu's development headers installed on the system (e.g. libicu-dev on
+# Debian-based distributions).
+user-search = ["pyicu"]
 
 # The duplication here is awful.
 #
@@ -147,6 +151,8 @@ all = [
     "txredisapi>=1.4.7", "hiredis",
     # cache-memory
     "pympler",
+    # user-search
+    "pyicu>=2.10.2",
     # omitted:
     #   - test: it's useful to have this separate from dev deps in the olddeps job
     #   - systemd: this is a system-based requirement
