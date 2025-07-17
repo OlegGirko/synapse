@@ -2305,6 +2305,18 @@ files = [
 windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
+name = "pyicu"
+version = "2.14"
+description = "Python extension wrapping the ICU C++ API"
+optional = true
+python-versions = "*"
+groups = ["main"]
+markers = "extra == \"all\" or extra == \"user-search\""
+files = [
+    {file = "PyICU-2.14.tar.gz", hash = "sha256:acc7eb92bd5c554ed577249c6978450a4feda0aa6f01470152b3a7b382a02132"},
+]
+
+[[package]]
 name = "pyjwt"
 version = "2.12.0"
 description = "JSON Web Token implementation in Python"
@@ -3738,7 +3750,7 @@ docs = ["Sphinx", "repoze.sphinx.autointerface"]
 test = ["zope.i18nmessageid", "zope.testing", "zope.testrunner (>=6.4)"]
 
 [extras]
-all = ["authlib", "defusedxml", "hiredis", "jaeger-client", "lxml", "matrix-synapse-ldap3", "opentracing", "psycopg2", "psycopg2cffi", "psycopg2cffi-compat", "pympler", "pysaml2", "pytz", "sentry-sdk", "thrift", "tornado", "txredisapi"]
+all = ["authlib", "defusedxml", "hiredis", "jaeger-client", "lxml", "matrix-synapse-ldap3", "opentracing", "psycopg2", "psycopg2cffi", "psycopg2cffi-compat", "pyicu", "pympler", "pysaml2", "pytz", "sentry-sdk", "thrift", "tornado", "txredisapi"]
 cache-memory = ["pympler"]
 jwt = ["authlib"]
 matrix-synapse-ldap3 = ["matrix-synapse-ldap3"]
@@ -3750,6 +3762,7 @@ saml2 = ["defusedxml", "pysaml2", "pytz"]
 sentry = ["sentry-sdk"]
 test = ["idna", "parameterized"]
 url-preview = ["lxml"]
+user-search = ["pyicu"]
 
 [metadata]
 lock-version = "2.1"
