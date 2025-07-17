@@ -52,7 +52,6 @@ serde_json = { version = "1.0.85", features = [
     "arbitrary_precision",
 ] }
 ulid = "1.1.2"
-icu_segmenter = "2.0.0"
 reqwest = { version = "0.12.15", default-features = false, features = [
     "http2",
     "stream",
