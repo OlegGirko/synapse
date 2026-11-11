@@ -38,10 +38,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-4195889f.js";
+            window.path_to_searchindex_js = "searchindex-34d484bd.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-64310643.js"></script>
+        <script src="toc-8fc16911.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -411,7 +411,7 @@ and mounting it to <code>/var/synapse</code> should be taken into consideration.
 <p>System requirements:</p>
 <ul>
 <li>POSIX-compliant system (tested on Linux &amp; OS X)</li>
-<li>Python 3.10 or later, up to Python 3.13.</li>
+<li>Python 3.11 or later, up to Python 3.14.</li>
 <li>At least 1GB of free RAM if you want to join large public rooms like #matrix:matrix.org</li>
 </ul>
 <p>If building on an uncommon architecture for which pre-built wheels are
@@ -482,7 +482,7 @@ header files for Python C extensions.</p>
 <h5 id="centosfedora"><a class="header" href="#centosfedora">CentOS/Fedora</a></h5>
 <p>Installing prerequisites on CentOS or Fedora Linux:</p>
 <pre><code class="language-sh">sudo dnf install libtiff-devel libjpeg-devel libzip-devel freetype-devel \
-                 libwebp-devel libxml2-devel libxslt-devel libpq-devel \
+                 libwebp-devel libxslt-devel libpq-devel \
                  python3-virtualenv libffi-devel openssl-devel python3-devel
 sudo dnf group install "Development Tools"
 </code></pre>
@@ -728,9 +728,6 @@ previewing in the <code>url_preview_ip_range_blacklist</code> configuration para
 This is critical from a security perspective to stop arbitrary Matrix users
 spidering ‘internal’ URLs on your network. At the very least we recommend that
 your loopback and RFC1918 IP addresses are blacklisted.</p>
-<p>This also requires the optional <code>lxml</code> python dependency to be  installed. This
-in turn requires the <code>libxml2</code> library to be available - on  Debian/Ubuntu this
-means <code>apt-get install libxml2-dev</code>, or equivalent for your OS.</p>
 <h3 id="backups"><a class="header" href="#backups">Backups</a></h3>
 <p>Don’t forget to take <a href="#how-to-back-up-a-synapse-homeserver">backups</a> of your new server!</p>
 <h3 id="troubleshooting-installation"><a class="header" href="#troubleshooting-installation">Troubleshooting Installation</a></h3>
@@ -1063,7 +1060,9 @@ reverse proxy is using.</p>
         proxy_pass http://localhost:8008;
         proxy_set_header X-Forwarded-For $remote_addr;
         proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Host $host:$server_port;
+        # If clients reach Synapse on a non-default port, use `$http_host` instead
+        # so the port is kept, and include that port in `public_baseurl`.
+        proxy_set_header Host $host;
 
         # Nginx by default only allows file uploads up to 1M in size
         # Increase client_max_body_size to match max_upload_size defined in homeserver.yaml
@@ -2111,6 +2110,22 @@ database migrations are complete. You should wait until background updates from
 each upgrade are complete before moving on to the next upgrade, to avoid
 stacking them up. You can monitor the currently running background updates with
 <a href="#status">the Admin API</a>.</p>
+<h1 id="upgrading-to-v11650"><a class="header" href="#upgrading-to-v11650">Upgrading to v1.165.0</a></h1>
+<h2 id="python-311-is-now-required"><a class="header" href="#python-311-is-now-required">Python 3.11+ is now required</a></h2>
+<p>The minimum supported Python version has been increased from v3.10 to v3.11.
+You will need Python 3.11+ to run Synapse v1.165.0.</p>
+<p>If you use current versions of the
+<a href="#docker-images-and-ansible-playbooks">matrixorg/synapse</a>
+Docker images, no action is required.</p>
+<h2 id="stable-matrixrtc-transport-discovery"><a class="header" href="#stable-matrixrtc-transport-discovery">Stable MatrixRTC transport discovery</a></h2>
+<p>Synapse has added stable support for <a href="https://github.com/matrix-org/matrix-spec-proposals/pull/4143">MSC4143</a>
+and serves <code>GET /_matrix/client/v1/rtc/transports</code> with the transports configured in
+<a href="#matrix_rtc"><code>matrix_rtc.transports</code></a>.</p>
+<p>Clients that implement the stable LiveKit transport from <a href="https://github.com/matrix-org/matrix-spec-proposals/pull/4195">MSC4195</a>
+expect transports of type <code>m.livekit</code>. The <code>livekit</code> transport type is deprecated. An
+<code>m.livekit</code> config entry should be added for each LiveKit SFU. As long as clients still
+depend on the unstable LiveKit transport from earlier versions of <a href="https://github.com/matrix-org/matrix-spec-proposals/pull/4195">MSC4195</a>,
+matching <code>livekit</code> entries should still be listed in addition.</p>
 <h1 id="upgrading-to-v11630"><a class="header" href="#upgrading-to-v11630">Upgrading to v1.163.0</a></h1>
 <h2 id="limit_profile_requests_to_users_who_share_rooms-now-requires-require_auth_for_profile_requests"><a class="header" href="#limit_profile_requests_to_users_who_share_rooms-now-requires-require_auth_for_profile_requests"><code>limit_profile_requests_to_users_who_share_rooms</code> now requires <code>require_auth_for_profile_requests</code></a></h2>
 <p>The shared-room check enabled by
@@ -2124,6 +2139,15 @@ any profile lookup.</p>
 <code>limit_profile_requests_to_users_who_share_rooms: true</code> in your configuration,
 either also set <code>require_auth_for_profile_requests: true</code>, or remove the option to
 keep the behaviour you have today.</p>
+<h2 id="privacy-preserving-requesttoken-responses-are-now-enabled-by-default"><a class="header" href="#privacy-preserving-requesttoken-responses-are-now-enabled-by-default">Privacy-preserving <code>/requestToken</code> responses are now enabled by default</a></h2>
+<p>The default value of <code>request_token_inhibit_3pid_errors</code> has changed from <code>false</code>
+to <code>true</code>. Synapse will now conceal whether an email address is associated with an
+account when responding to <code>/requestToken</code> requests, unless the setting is
+explicitly configured as <code>false</code>.</p>
+<p>Administrators who rely on the previous responses can retain them by adding the
+following to their configuration:</p>
+<pre><code class="language-yaml">request_token_inhibit_3pid_errors: false
+</code></pre>
 <h1 id="upgrading-to-v11610"><a class="header" href="#upgrading-to-v11610">Upgrading to v1.161.0</a></h1>
 <h2 id="deprecation-of-matrix_rtclivekit_service_url"><a class="header" href="#deprecation-of-matrix_rtclivekit_service_url">Deprecation of <code>matrix_rtc.livekit_service_url</code></a></h2>
 <p>When configuring the MatrixRTC LiveKit transport, the <code>livekit_service_url</code> is now
@@ -4823,7 +4847,7 @@ This feature is under development and should be used with caution on busy server
 </code></pre>
 <hr>
 <h3 id="manhole"><a class="header" href="#manhole"><code>manhole</code></a></h3>
-<p><em>(integer|null)</em> Turn on the Twisted telnet manhole service on the given port.</p>
+<p><em>(integer|null)</em> Turn on the Twisted manhole service on the given port.</p>
 <p>This can also be set by the <code>--manhole</code> argument when starting Synapse.</p>
 <p>Defaults to <code>null</code>.</p>
 <p>Example configuration:</p>
@@ -5250,7 +5274,7 @@ For more details, see the <a href="#using-a-forward-proxy-with-synapse">forward 
 </code></pre>
 <hr>
 <h3 id="request_token_inhibit_3pid_errors"><a class="header" href="#request_token_inhibit_3pid_errors"><code>request_token_inhibit_3pid_errors</code></a></h3>
-<p><em>(boolean)</em> Inhibits the <code>/requestToken</code> endpoints from returning an error that might leak information about whether an e-mail address is in use or not on this homeserver. Note that for some endpoints the error situation is the e-mail already being used, and for others the error is entering the e-mail being unused. If this option is enabled, instead of returning an error, these endpoints will act as if no error happened and return a fake session ID (<code>sid</code>) to clients. Defaults to <code>false</code>.</p>
+<p><em>(boolean)</em> Inhibits the <code>/requestToken</code> endpoints from returning an error that might leak information about whether an e-mail address is in use or not on this homeserver. Note that for some endpoints the error situation is the e-mail already being used, and for others the error is entering the e-mail being unused. If this option is enabled, instead of returning an error, these endpoints will act as if no error happened and return a fake session ID (<code>sid</code>) to clients. Defaults to <code>true</code>.</p>
 <p>Example configuration:</p>
 <pre><code class="language-yaml">request_token_inhibit_3pid_errors: true
 </code></pre>
@@ -6085,7 +6109,7 @@ For more details, see the <a href="#using-a-forward-proxy-with-synapse">forward 
 <hr>
 <h3 id="rc_delayed_event_mgmt"><a class="header" href="#rc_delayed_event_mgmt"><code>rc_delayed_event_mgmt</code></a></h3>
 <p><em>(object)</em> Ratelimiting settings for delayed event management.</p>
-<p>This is a ratelimiting option that ratelimits attempts to restart, cancel, or view delayed events based on the sending client’s account, or its source IP when requests are unauthenticated.</p>
+<p>This is a ratelimiting option that ratelimits attempts to restart, cancel, or view delayed events based on the sending client’s account.</p>
 <p>Attempts to create or send delayed events are ratelimited not by this setting, but by <code>rc_message</code>.</p>
 <p>Setting this to a high value allows clients to make delayed event management requests often (such as repeatedly restarting a delayed event with a short timeout, or restarting several different delayed events all at once) without the risk of being ratelimited.</p>
 <p>This setting has the following sub-options:</p>
@@ -6624,18 +6648,29 @@ These limits are applied in addition to the <code>max_upload_size</code> limit a
 <p>This setting has the following sub-options:</p>
 <ul>
 <li>
-<p><code>transports</code> (array): A list of transport types and arguments to use for MatrixRTC connections. Defaults to <code>[]</code>.</p>
+<p><code>transports</code> (array): A list of MatrixRTC transports advertised to clients on <code>/_matrix/client/v1/rtc/transports</code> and, if it is enabled via <code>experimental_features.msc4143_enabled</code>, the unstable <code>/_matrix/client/unstable/org.matrix.msc4143/rtc/transports</code> endpoint. Defaults to <code>[]</code>.</p>
 <p>Options for each entry include:</p>
 <ul>
 <li>
-<p><code>type</code> (string): The type of transport to use to connect to the selective forwarding unit (SFU).</p>
+<p><code>type</code> (string): The type of transport to advertise to clients.</p>
+<ul>
+<li>
+<p>Transports of type <code>m.livekit</code> advertise the stable transport based on LiveKit’s selective
+forwarding unit (SFU).</p>
 </li>
 <li>
-<p><code>url</code> (string): The WebSocket URL of the LiveKit SFU. If type is “livekit”, either this or <code>livekit_service_url</code> is required.</p>
+<p>Transports of type <code>livekit</code> advertise the unstable version of the LiveKit-based transport.
+This type is deprecated and should only be used when backwards compatibility for clients
+that don’t yet support the stable transport is required.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><code>url</code> (string): The WebSocket URL of the LiveKit SFU. If <code>type</code> is “m.livekit”, this is required. If <code>type</code> is “livekit”, either this or <code>livekit_service_url</code> is required.</p>
 <p>Clients that support <code>url</code> will use the Client-Server API to (indirectly) interact with the LiveKit authorization service. The service needs to be set up as an application service in order to support these endpoints. See https://github.com/element-hq/lk-jwt-service for further details.</p>
 </li>
 <li>
-<p><code>livekit_service_url</code> (string): Deprecated. The HTTP URL of the LiveKit authorization service. If type is “livekit”, either this or <code>url</code> is required.</p>
+<p><code>livekit_service_url</code> (string): Deprecated. The HTTP URL of the LiveKit authorization service. If <code>type</code> is “livekit”, either this or <code>url</code> is required.</p>
 <p>Clients that don’t support <code>url</code> will use <code>livekit_service_url</code> to directly interact with the LiveKit authorization service. This mode of operation is deprecated and should only be used for backwards compatibility.</p>
 </li>
 </ul>
@@ -6644,6 +6679,8 @@ These limits are applied in addition to the <code>max_upload_size</code> limit a
 <p>Example configuration:</p>
 <pre><code class="language-yaml">matrix_rtc:
   transports:
+  - type: m.livekit
+    url: wss://livekit.example.com
   - type: livekit
     url: wss://livekit.example.com
     livekit_service_url: https://matrix-rtc.example.com/livekit/jwt
@@ -12699,6 +12736,7 @@ information.</p>
 ^/_matrix/client/(r0|v3)/delete_devices$
 ^/_matrix/client/(api/v1|r0|v3|unstable)/devices(/|$)
 ^/_matrix/client/versions$
+^/_matrix/client/(v1|unstable/org.matrix.msc2965)/auth_metadata$
 ^/_matrix/client/(api/v1|r0|v3|unstable)/voip/turnServer$
 ^/_matrix/client/(api/v1|r0|v3|unstable)/rooms/.*/event/
 ^/_matrix/client/(api/v1|r0|v3|unstable)/joined_rooms$
@@ -12709,6 +12747,7 @@ information.</p>
 ^/_matrix/client/(api/v1|r0|v3|unstable)/directory/room/.*$
 ^/_matrix/client/(r0|v3|unstable)/capabilities$
 ^/_matrix/client/(r0|v3|unstable)/notifications$
+^/_matrix/client/(v1|unstable/org.matrix.msc4143)/rtc/transports$
 
 # Admin API requests
 ^/_synapse/admin/v1/rooms/[^/]+$
@@ -12741,7 +12780,8 @@ information.</p>
 # User directory search requests
 ^/_matrix/client/(r0|v3|unstable)/user_directory/search$
 
-# Unstable MSC4140 support
+# Unstable MSC4140 support (delayed event scheduling &amp; management)
+^/_matrix/client/unstable/org.matrix.msc4140/rooms/.*/delayed_event/
 ^/_matrix/client/unstable/org.matrix.msc4140/delayed_events(/[^/]+(/restart)?)?$
 
 # Stabilised Delegated Authentication support (`matrix_authentication_service.enabled: true`)
@@ -13851,7 +13891,6 @@ basis. The currently supported features are:</p>
 <li><a href="https://github.com/matrix-org/matrix-spec-proposals/pull/3881">MSC3881</a>: enable remotely toggling push notifications
 for another client</li>
 <li><a href="https://github.com/matrix-org/matrix-spec-proposals/pull/3575">MSC3575</a>: enable experimental sliding sync support</li>
-<li><a href="https://github.com/matrix-org/matrix-spec-proposals/pull/4222">MSC4222</a>: adding <code>state_after</code> to sync v2</li>
 </ul>
 <p>To use it, you will need to authenticate by providing an <code>access_token</code>
 for a server admin: see <a href="usage/administration/admin_api">Admin API</a>.</p>
@@ -15700,6 +15739,109 @@ ignored in the same way as with <code>PUT /_matrix/client/r0/rooms/{roomId}/send
 <p>Note that server notices must be enabled in <code>homeserver.yaml</code> before this API
 can be used. See <a href="#server-notices">the server notices documentation</a> for more information.</p>
 <div style="break-before: page; page-break-before: always;"></div>
+<h1 id="server-announcements"><a class="header" href="#server-announcements">Server Announcements</a></h1>
+<p>These APIs read and send to the server announcement rooms configured under
+<code>experimental_features.server_announcements.rooms</code> in <code>homeserver.yaml</code>. The
+feature is experimental; see the
+<a href="https://github.com/element-hq/synapse/blob/develop/synapse/config/server_announcements.py">configuration module</a>
+for how to configure the rooms.</p>
+<p>Each room is identified by the <code>id</code> of its configuration entry, not by its
+Matrix room ID.</p>
+<p>You will need to
+<a href="https://element-hq.github.io/synapse/latest/usage/administration/admin_api/#authenticate-as-a-server-admin">authenticate with an access token</a>
+for an admin user.</p>
+<h2 id="list-announcement-rooms"><a class="header" href="#list-announcement-rooms">List announcement rooms</a></h2>
+<pre><code>GET /_synapse/admin/v1/server_announcements
+</code></pre>
+<p>Returns the configured announcement rooms:</p>
+<pre><code class="language-json">{
+    "management_user_id": "@_server_announcements:example.com",
+    "rooms": [
+        {
+            "id": "general",
+            "room_id": "!abc:example.com",
+            "room_name": "Server announcements",
+            "room_topic": "Planned maintenance and incidents",
+            "room_avatar_url": "mxc://example.com/xyz",
+            "allowed_user_ids": ["@comms:example.com"],
+            "excluded_user_ids": []
+        }
+    ]
+}
+</code></pre>
+<ul>
+<li><code>management_user_id</code>: the user that creates and manages the rooms, and sends
+the announcements posted through this API.</li>
+<li><code>rooms</code>: one entry per configured room, in configuration order. Empty if no
+rooms are configured.
+<ul>
+<li><code>id</code>: the <code>id</code> of the configuration entry.</li>
+<li><code>room_id</code>: the Matrix room ID. <code>null</code> if the room has not been created,
+which happens after the room is purged while Synapse is running. Synapse
+creates it again on the next restart.</li>
+<li><code>room_name</code>, <code>room_topic</code>, <code>room_avatar_url</code>: the values from the
+configuration, which Synapse applies to the room at startup. Use the
+<a href="#room-details-api">room details API</a> for the room’s current state.</li>
+<li><code>allowed_user_ids</code>, <code>excluded_user_ids</code>: as configured.</li>
+</ul>
+</li>
+</ul>
+<p>Rooms whose configuration entry was removed are not listed.</p>
+<h2 id="get-an-announcement-room"><a class="header" href="#get-an-announcement-room">Get an announcement room</a></h2>
+<pre><code>GET /_synapse/admin/v1/server_announcements/{id}
+</code></pre>
+<p>Returns a single entry of <code>rooms</code> above, or a 404 with <code>M_NOT_FOUND</code> if <code>id</code> is
+not in the configuration.</p>
+<h2 id="send-an-announcement"><a class="header" href="#send-an-announcement">Send an announcement</a></h2>
+<pre><code>POST /_synapse/admin/v1/server_announcements/{id}/send
+</code></pre>
+<p>or:</p>
+<pre><code>PUT /_synapse/admin/v1/server_announcements/{id}/send/{txnId}
+</code></pre>
+<p>Sends an event into the announcement room with configuration <code>id</code>, as the
+management user. The event reaches every user that the room is delivered to.
+No rate limit applies.</p>
+<p>When using the <code>PUT</code> form, retransmissions with the same transaction ID will be
+ignored in the same way as with <code>PUT /_matrix/client/v3/rooms/{roomId}/send/{eventType}/{txnId}</code>. When Synapse
+delegates authentication to the Matrix Authentication Service, the <code>PUT</code> form
+needs an access token with a device.</p>
+<p>The request body should look something like the following:</p>
+<pre><code class="language-json">{
+    "content": {
+        "msgtype": "m.text",
+        "body": "Maintenance tonight at 22:00 UTC"
+    }
+}
+</code></pre>
+<p>You can optionally include the following additional parameter:</p>
+<ul>
+<li>
+<p><code>type</code>: the type of event. Defaults to <code>m.room.message</code>. Any non-state event
+type except <code>m.room.member</code> is accepted, so an announcement can be edited by
+sending an <code>m.room.message</code> with <code>m.new_content</code> and <code>m.relates_to</code>. To
+retract an announcement, send an <code>m.room.redaction</code> with the ID of the event
+to redact in <code>content.redacts</code>, whatever the room version. Synapse moves it
+to the top level of the event for rooms before version 11:</p>
+<pre><code class="language-json">{
+    "type": "m.room.redaction",
+    "content": {"redacts": "$event_id"}
+}
+</code></pre>
+</li>
+</ul>
+<p>State events cannot be sent: Synapse manages the room state from the
+configuration, and a request with a <code>state_key</code> is rejected with
+<code>M_INVALID_PARAM</code>.</p>
+<p>Once the event has been sent, the API will return the following response:</p>
+<pre><code class="language-json">{
+    "event_id": "&lt;event_id&gt;",
+    "room_id": "&lt;room_id&gt;"
+}
+</code></pre>
+<p>The API returns a 400 if no announcement rooms are configured, and a 404 if
+<code>id</code> is not in the configuration.</p>
+<p>Push notifications are not yet sent for announcements.</p>
+<div style="break-before: page; page-break-before: always;"></div>
 <h1 id="users-media-usage-statistics"><a class="header" href="#users-media-usage-statistics">Users’ media usage statistics</a></h1>
 <p>Returns information about all local media usage of users. Gives the
 possibility to filter them by time and user.</p>
@@ -16960,8 +17102,14 @@ be local.</li>
 </ul>
 <h2 id="override-ratelimiting-for-users"><a class="header" href="#override-ratelimiting-for-users">Override ratelimiting for users</a></h2>
 <p>This API allows to override or disable ratelimiting for a specific user.
-There are specific APIs to set, get and delete a ratelimit.</p>
-<h3 id="get-status-of-ratelimit"><a class="header" href="#get-status-of-ratelimit">Get status of ratelimit</a></h3>
+There are specific APIs to set, get and delete a ratelimit override.</p>
+<p>An override replaces the rate and burst count of the <code>rc_message</code> ratelimiter,
+which applies to sending events and some related actions (e.g. creating rooms,
+updating the user’s profile). It does not override the limits of other
+ratelimiters (e.g. <code>rc_invites</code> or <code>rc_joins</code>).</p>
+<p>The exception is disabling ratelimiting: an override with <code>messages_per_second</code>
+set to <code>0</code> disables <strong>all</strong> ratelimiting for the user.</p>
+<h3 id="get-status-of-ratelimit-override"><a class="header" href="#get-status-of-ratelimit-override">Get status of ratelimit override</a></h3>
 <p>The API is:</p>
 <pre><code>GET /_synapse/admin/v1/users/&lt;user_id&gt;/override_ratelimit
 </code></pre>
@@ -16980,15 +17128,16 @@ be local.</li>
 <p><strong>Response</strong></p>
 <p>The following fields are returned in the JSON response body:</p>
 <ul>
-<li><code>messages_per_second</code> - integer - The number of actions that can
-be performed in a second. <code>0</code> mean that ratelimiting is disabled for this user.</li>
-<li><code>burst_count</code> - integer - How many actions that can be performed before
+<li><code>messages_per_second</code> - integer - The number of messages that can
+be sent in a second. <code>0</code> means that ratelimiting is disabled for this user.</li>
+<li><code>burst_count</code> - integer - How many messages that can be sent before
 being limited.</li>
 </ul>
-<p>If <strong>no</strong> custom ratelimit is set, an empty JSON dict is returned.</p>
+<p>If <strong>no</strong> ratelimit override is set, an empty JSON dict is returned and the
+global ratelimits from the homeserver config apply to the user.</p>
 <pre><code class="language-json">{}
 </code></pre>
-<h3 id="set-ratelimit"><a class="header" href="#set-ratelimit">Set ratelimit</a></h3>
+<h3 id="set-ratelimit-override"><a class="header" href="#set-ratelimit-override">Set ratelimit override</a></h3>
 <p>The API is:</p>
 <pre><code>POST /_synapse/admin/v1/users/&lt;user_id&gt;/override_ratelimit
 </code></pre>
@@ -17006,21 +17155,24 @@ be local.</li>
 </ul>
 <p>Body parameters:</p>
 <ul>
-<li><code>messages_per_second</code> - positive integer, optional. The number of actions that can
-be performed in a second. Defaults to <code>0</code>.</li>
-<li><code>burst_count</code> - positive integer, optional. How many actions that can be performed
+<li><code>messages_per_second</code> - positive integer, optional. The number of messages that can
+be sent in a second. Defaults to <code>0</code>.</li>
+<li><code>burst_count</code> - positive integer, optional. How many messages that can be sent
 before being limited. Defaults to <code>0</code>.</li>
 </ul>
-<p>To disable users’ ratelimit set both values to <code>0</code>.</p>
+<p>To disable ratelimiting for the user entirely set both values to <code>0</code>.</p>
 <p><strong>Response</strong></p>
 <p>The following fields are returned in the JSON response body:</p>
 <ul>
-<li><code>messages_per_second</code> - integer - The number of actions that can
-be performed in a second.</li>
-<li><code>burst_count</code> - integer - How many actions that can be performed before
+<li><code>messages_per_second</code> - integer - The number of messages that can
+be sent in a second.</li>
+<li><code>burst_count</code> - integer - How many messages that can be sent before
 being limited.</li>
 </ul>
-<h3 id="delete-ratelimit"><a class="header" href="#delete-ratelimit">Delete ratelimit</a></h3>
+<h3 id="delete-ratelimit-override"><a class="header" href="#delete-ratelimit-override">Delete ratelimit override</a></h3>
+<p>Removes the ratelimit override for the user, so that the global ratelimits from
+the homeserver config apply to the user again. This does <strong>not</strong> disable
+ratelimiting for the user; to do that, set an override with both values <code>0</code>.</p>
 <p>The API is:</p>
 <pre><code>DELETE /_synapse/admin/v1/users/&lt;user_id&gt;/override_ratelimit
 </code></pre>
@@ -17147,8 +17299,8 @@ or until Synapse is restarted (whichever happens first).</p>
 </code></pre>
 <p>A response body like the following is returned:</p>
 <pre><code>{
-  "status": "active",
-  "failed_redactions": [],
+  "status": "complete",
+  "failed_redactions": {},
 }
 </code></pre>
 <p><strong>Parameters</strong></p>
@@ -17159,9 +17311,13 @@ or until Synapse is restarted (whichever happens first).</p>
 <p><strong>Response</strong></p>
 <p>The following fields are returned in the JSON response body:</p>
 <ul>
-<li><code>status</code> - string - one of scheduled/active/completed/failed, indicating the status of the redaction job</li>
-<li><code>failed_redactions</code> - dictionary - the keys of the dict are event ids the process was unable to redact, if any, and the values are
-the corresponding error that caused the redaction to fail</li>
+<li><code>status</code> - string (required) - one of <code>scheduled</code>/<code>active</code>/<code>complete</code>/<code>failed</code>,
+indicating the status of the redaction job</li>
+<li><code>failed_redactions</code> - dictionary (optional) - when the redaction status is <code>complete</code>,
+contains the keys of the dict are event ids the process was unable to redact, if any,
+and the values are the corresponding error that caused the redaction to fail</li>
+<li><code>error</code> - string (optional) - when the redaction <code>status</code> is <code>failed</code>, this field will
+contains a description of the error encountered during the redaction process.</li>
 </ul>
 <p><em>Added in Synapse 1.116.0.</em></p>
 <div style="break-before: page; page-break-before: always;"></div>
@@ -20934,6 +21090,8 @@ their current position and the given last position.</p>
 <p>Acknowledge receipt of some federation data</p>
 <h3 id="remote_server_up-s-c"><a class="header" href="#remote_server_up-s-c">REMOTE_SERVER_UP (S, C)</a></h3>
 <p>Inform other processes that a remote server may have come back online.</p>
+<h3 id="new_server_joined-s-c"><a class="header" href="#new_server_joined-s-c">NEW_SERVER_JOINED (S, C)</a></h3>
+<p>Informs other processes that a remote server has just joined a room.</p>
 <p>See <code>synapse/replication/tcp/commands.py</code> for a detailed description and
 the format of each command.</p>
 <h3 id="cache-invalidation-stream"><a class="header" href="#cache-invalidation-stream">Cache Invalidation Stream</a></h3>

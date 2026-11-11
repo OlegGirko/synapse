@@ -37,10 +37,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-4195889f.js";
+            window.path_to_searchindex_js = "searchindex-34d484bd.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-64310643.js"></script>
+        <script src="toc-8fc16911.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -415,6 +415,7 @@ information.</p>
 ^/_matrix/client/(r0|v3)/delete_devices$
 ^/_matrix/client/(api/v1|r0|v3|unstable)/devices(/|$)
 ^/_matrix/client/versions$
+^/_matrix/client/(v1|unstable/org.matrix.msc2965)/auth_metadata$
 ^/_matrix/client/(api/v1|r0|v3|unstable)/voip/turnServer$
 ^/_matrix/client/(api/v1|r0|v3|unstable)/rooms/.*/event/
 ^/_matrix/client/(api/v1|r0|v3|unstable)/joined_rooms$
@@ -425,6 +426,7 @@ information.</p>
 ^/_matrix/client/(api/v1|r0|v3|unstable)/directory/room/.*$
 ^/_matrix/client/(r0|v3|unstable)/capabilities$
 ^/_matrix/client/(r0|v3|unstable)/notifications$
+^/_matrix/client/(v1|unstable/org.matrix.msc4143)/rtc/transports$
 
 # Admin API requests
 ^/_synapse/admin/v1/rooms/[^/]+$
@@ -457,7 +459,8 @@ information.</p>
 # User directory search requests
 ^/_matrix/client/(r0|v3|unstable)/user_directory/search$
 
-# Unstable MSC4140 support
+# Unstable MSC4140 support (delayed event scheduling &amp; management)
+^/_matrix/client/unstable/org.matrix.msc4140/rooms/.*/delayed_event/
 ^/_matrix/client/unstable/org.matrix.msc4140/delayed_events(/[^/]+(/restart)?)?$
 
 # Stabilised Delegated Authentication support (`matrix_authentication_service.enabled: true`)
